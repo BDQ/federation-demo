@@ -5,6 +5,7 @@
     "ops": "bin/ops.js"
   },
   "scripts": {
+    "deploy": "npm run build && npm run cdk deploy gql*",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",

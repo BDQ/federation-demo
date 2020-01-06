@@ -10,7 +10,11 @@ export class GQLStack extends cdk.Stack {
     super(scope, id, props);
 
     // api to house individual graphql endpoints
-    const gapi = new apigateway.RestApi(this, `gql-api`, {});
+    const gapi = new apigateway.RestApi(this, `gql-api`, {
+      deployOptions: {
+        tracingEnabled: true
+      }
+    });
 
     // accounts
     const accountsLambda = new lambda.Function(this, "accounts", {
@@ -77,7 +81,11 @@ export class GQLStack extends cdk.Stack {
     reviews.addMethod("POST", reviewsInteg);
 
     // gateway
-    const fedapi = new apigateway.RestApi(this, `fed-api`, {});
+    const fedapi = new apigateway.RestApi(this, `fed-api`, {
+      deployOptions: {
+        tracingEnabled: true
+      }
+    });
 
     const gatewayLambda = new lambda.Function(this, "gateway", {
       runtime: lambda.Runtime.NODEJS_12_X,

@@ -2,7 +2,7 @@
   "name": "federation-demo",
   "scripts": {
     "postinstall": "lerna bootstrap",
-    "deploy": "lerna exec --scope=ops -- cdk deploy gql*"
+    "deploy": "lerna exec --scope=ops -- npm run deploy"
   },
   "devDependencies": {
     "@aws-cdk/aws-lambda": "^1.19.0",
