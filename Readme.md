@@ -1,6 +1,6 @@
 ## Extended Apollo Federation Demo using Lambda
 
-This repository is a demo of using Apollo Federation to build a single schema on top of AWS Lambda services. The Lambdas are located under the [`./services`](./services/) folder and the gateway that composes the overall schema is in the [`gateway`](./services/gateway/index.js) service.
+This repository is a demo of using Apollo Federation to build a single schema on top of AWS Lambda. The Lambdas are located under the [`./services`](./services/) folder and the Gateway that composes the overall schema is in the [`gateway`](./services/gateway/index.js) service.
 
 ### What is this?
 
@@ -8,11 +8,19 @@ This demo showcases four partial schemas running as federated microservices. Eac
 
 The Gateway service accesses the upstreams GQL endpoints by invoking the Lambda directly (removing the HTTP overhead of the AWS API gateway), this is achieved using a custom Apollo Gateway Data Source called: [LambdaGraphQLDataSource](./services/gateway/LambdaGraphQLDataSource.js).
 
+To learn more about Apollo Federation, check out the [docs](https://www.apollographql.com/docs/apollo-server/federation/introduction)
+
+### Deployment Config
+
+This demo uses the AWS-CDK to configure the following components:
+
+- **Gateway Lambda** - The public facing GraphQL endpoint, connected to its own AWS API Gateway (fedapi) to make it HTTP accessible.
+
+- **Products, Reviews, Accounts, Inventory Lambdas** - Partial GraphQL endpoints (which are frontend by the Gateway Lambda above). These are also connected to an AWS API Gateway (gqlapi) for testing purposes only.
+
 #### Federated Query - X-Ray Service Map
 
 ![x-ray service map](https://monosnap.com/image/n3BDYYjoOzAutC4vRK3ys5isWGpFdW)
-
-To learn more about Apollo Federation, check out the [docs](https://www.apollographql.com/docs/apollo-server/federation/introduction)
 
 ### Deploying with CDK
 
