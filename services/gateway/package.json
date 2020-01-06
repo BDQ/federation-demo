@@ -1,14 +1,19 @@
 {
-  "name": "inventory",
+  "name": "gateway",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "@apollo/federation": "latest",
+    "@apollo/gateway": "latest",
     "@lifeomic/graphql-resolvers-xray-tracing": "^4.0.0",
     "apollo-server": "latest",
     "apollo-server-lambda": "latest",
+    "aws-xray-sdk": "^2.5.0",
     "aws-xray-sdk-core": "^2.5.0",
     "graphql": "latest"
+  },
+  "devDependencies": {
+    "apollo-gateway-aws-lambda": "^0.1.2"
   }
 }

@@ -1,5 +1,11 @@
-const { ApolloServer, gql } = require("apollo-server");
+const xray = require("aws-xray-sdk-core");
+xray.captureHTTPsGlobal(require("http"));
+xray.capturePromise();
+
+const { ApolloServer, gql } = require("apollo-server-lambda");
 const { buildFederatedSchema } = require("@apollo/federation");
+
+const traceResolvers = require("@lifeomic/graphql-resolvers-xray-tracing");
 
 const typeDefs = gql`
   type Review @key(fields: "id") {
@@ -46,17 +52,17 @@ const resolvers = {
   }
 };
 
-const server = new ApolloServer({
-  schema: buildFederatedSchema([
-    {
-      typeDefs,
-      resolvers
-    }
-  ])
-});
+const schema = buildFederatedSchema([
+  {
+    typeDefs,
+    resolvers
+  }
+]);
 
-server.listen({ port: 4002 }).then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
+traceResolvers(schema);
+
+const server = new ApolloServer({
+  schema
 });
 
 const usernames = [
@@ -89,3 +95,5 @@ const reviews = [
     body: "Prefer something else."
   }
 ];
+
+exports.handler = server.createHandler();

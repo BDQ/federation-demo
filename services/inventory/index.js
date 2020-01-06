@@ -1,5 +1,11 @@
-const { ApolloServer, gql } = require("apollo-server");
+const xray = require("aws-xray-sdk-core");
+xray.captureHTTPsGlobal(require("http"));
+xray.capturePromise();
+
+const { ApolloServer, gql } = require("apollo-server-lambda");
 const { buildFederatedSchema } = require("@apollo/federation");
+
+const traceResolvers = require("@lifeomic/graphql-resolvers-xray-tracing");
 
 const typeDefs = gql`
   extend type Product @key(fields: "upc") {
@@ -28,17 +34,17 @@ const resolvers = {
   }
 };
 
-const server = new ApolloServer({
-  schema: buildFederatedSchema([
-    {
-      typeDefs,
-      resolvers
-    }
-  ])
-});
+const schema = buildFederatedSchema([
+  {
+    typeDefs,
+    resolvers
+  }
+]);
 
-server.listen({ port: 4004 }).then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
+traceResolvers(schema);
+
+const server = new ApolloServer({
+  schema
 });
 
 const inventory = [
@@ -46,3 +52,5 @@ const inventory = [
   { upc: "2", inStock: false },
   { upc: "3", inStock: true }
 ];
+
+exports.handler = server.createHandler();

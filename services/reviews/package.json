@@ -5,7 +5,10 @@
   },
   "dependencies": {
     "@apollo/federation": "latest",
+    "@lifeomic/graphql-resolvers-xray-tracing": "^4.0.0",
     "apollo-server": "latest",
+    "apollo-server-lambda": "latest",
+    "aws-xray-sdk-core": "^2.5.0",
     "graphql": "latest"
   }
 }
