@@ -68,12 +68,12 @@ The X-Ray trace for this query looks like:
 
 ### TIL
 
-- Federated (sub) schemas can't be exposed to the public (federation leaks too much info). This is easy to achieve with the deployment pattern here, as the Apollo Gateway invokes lambdas programmatically (not using the AWS API Gateway). I've included the `gqlapi` API for testing purposes only. If we want to expose sub schemas directly, we'd need to have a dedicated lambda handler for that, that doesn't use the federated schema methods.
+- Federated (sub) schemas shouldn't be exposed to the public (federation leaks too much info). This is easy to achieve with the deployment pattern here, as the Apollo Gateway invokes lambdas programmatically (not using the AWS API Gateway). I've included the `gqlapi` API for testing purposes only. If we want to expose sub schemas directly, we'd need to have a dedicated lambda handler for that, that doesn't use the federated schema methods.
 
 - Apollo Gateway, is pretty smart:
 
   - It knows what sub-queries it can run in parallel (see `Inventory` & `Reviews` lambda invokes in the trace timing above).
-  - It can deal with an individual sub-queries failing (if the endpoint is down etc), it returns as much of the result as it can (allow with a list of exceptions encountered).
+  - It can deal with an individual sub-queries failing (if the endpoint is down etc), it returns as much of the result as it can (allong with the exceptions encountered).
 
 - Invoking a lambda seems to have 10ms to 20ms of overhead, in the x-ray trace above - the `Gateway` lambda takes 31ms to invoke the `Products`. However, if you look at the `Products` lambda breakdown, it only takes 17ms to process.
 
