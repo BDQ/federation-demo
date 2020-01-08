@@ -7,6 +7,7 @@
   "devDependencies": {
     "@aws-cdk/aws-lambda": "^1.19.0",
     "concurrently": "latest",
+    "lerna": "^3.20.2",
     "nodemon": "latest"
   },
   "dependencies": {
