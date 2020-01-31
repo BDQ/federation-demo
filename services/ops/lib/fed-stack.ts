@@ -1,16 +1,17 @@
 import cdk = require("@aws-cdk/core");
 import lambda = require("@aws-cdk/aws-lambda");
 import dynamodb = require("@aws-cdk/aws-dynamodb");
+import iam = require("@aws-cdk/aws-iam");
 
 import apigateway = require("@aws-cdk/aws-apigateway");
 import path = require("path");
 
-export class GQLStack extends cdk.Stack {
+export class FedStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // api to house individual graphql endpoints
-    const gapi = new apigateway.RestApi(this, `gql-api`, {
+    const gapi = new apigateway.RestApi(this, `child-api`, {
       deployOptions: {
         tracingEnabled: true
       }
@@ -20,8 +21,11 @@ export class GQLStack extends cdk.Stack {
     const accountsLambda = new lambda.Function(this, "accounts", {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "index.handler",
-      code: lambda.Code.fromAsset(path.join(__dirname, "../../accounts")),
-      timeout: cdk.Duration.seconds(60),
+      // code: lambda.Code.fromAsset(path.join(__dirname, "../../accounts")),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../dist/accounts")
+      ),
+      timeout: cdk.Duration.seconds(15),
       tracing: lambda.Tracing.ACTIVE,
       memorySize: 2048
     });
@@ -34,8 +38,11 @@ export class GQLStack extends cdk.Stack {
     const inventoryLambda = new lambda.Function(this, "inventory", {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "index.handler",
-      code: lambda.Code.fromAsset(path.join(__dirname, "../../inventory")),
-      timeout: cdk.Duration.seconds(60),
+      // code: lambda.Code.fromAsset(path.join(__dirname, "../../inventory")),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../dist/inventory")
+      ),
+      timeout: cdk.Duration.seconds(15),
       tracing: lambda.Tracing.ACTIVE,
       memorySize: 2048
     });
@@ -53,8 +60,11 @@ export class GQLStack extends cdk.Stack {
     const productsLambda = new lambda.Function(this, "productsLambda", {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "index.handler",
-      code: lambda.Code.fromAsset(path.join(__dirname, "../../products")),
-      timeout: cdk.Duration.seconds(60),
+      // code: lambda.Code.fromAsset(path.join(__dirname, "../../products")),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../dist/products")
+      ),
+      timeout: cdk.Duration.seconds(15),
       tracing: lambda.Tracing.ACTIVE,
       memorySize: 2048,
       environment: {
@@ -70,8 +80,11 @@ export class GQLStack extends cdk.Stack {
     const reviewsLambda = new lambda.Function(this, "reviews", {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "index.handler",
-      code: lambda.Code.fromAsset(path.join(__dirname, "../../reviews")),
-      timeout: cdk.Duration.seconds(60),
+      // code: lambda.Code.fromAsset(path.join(__dirname, "../../reviews")),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../dist/reviews")
+      ),
+      timeout: cdk.Duration.seconds(15),
       tracing: lambda.Tracing.ACTIVE,
       memorySize: 2048
     });
@@ -80,17 +93,13 @@ export class GQLStack extends cdk.Stack {
     reviews.addMethod("GET", reviewsInteg);
     reviews.addMethod("POST", reviewsInteg);
 
-    // gateway
-    const fedapi = new apigateway.RestApi(this, `fed-api`, {
-      deployOptions: {
-        tracingEnabled: true
-      }
-    });
-
     const gatewayLambda = new lambda.Function(this, "gateway", {
       runtime: lambda.Runtime.NODEJS_12_X,
       handler: "index.handler",
-      code: lambda.Code.fromAsset(path.join(__dirname, "../../gateway")),
+      // code: lambda.Code.fromAsset(path.join(__dirname, "../../gateway")),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../../dist/gateway")
+      ),
       timeout: cdk.Duration.seconds(60),
       tracing: lambda.Tracing.ACTIVE,
       memorySize: 2048,
@@ -109,8 +118,29 @@ export class GQLStack extends cdk.Stack {
       }
     );
 
+    // gateway
+    const fedapi = new apigateway.CfnApiV2(this, `fed-api`, {
+      name: "fedhttpapi",
+      protocolType: "HTTP",
+      target: gatewayLambda.functionArn
+    });
+
+    // this.formatArn()
+    new lambda.CfnPermission(this, "gate-perm", {
+      principal: "apigateway.amazonaws.com",
+      functionName: gatewayLambda.functionName,
+      sourceArn: `arn:aws:execute-api:us-east-1:${this.account}:*`,
+      action: "lambda:InvokeFunction"
+    });
+
+    const fedrestapi = new apigateway.RestApi(this, `fed-rest-api`, {
+      deployOptions: {
+        tracingEnabled: true
+      }
+    });
+
     const gatewayInteg = new apigateway.LambdaIntegration(gatewayLambda);
-    fedapi.root.addMethod("GET", gatewayInteg);
-    fedapi.root.addMethod("POST", gatewayInteg);
+    fedrestapi.root.addMethod("GET", gatewayInteg);
+    fedrestapi.root.addMethod("POST", gatewayInteg);
   }
 }

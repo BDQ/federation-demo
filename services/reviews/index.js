@@ -62,7 +62,9 @@ const schema = buildFederatedSchema([
 traceResolvers(schema);
 
 const server = new ApolloServer({
-  schema
+  schema,
+  introspection: true,
+  playground: true
 });
 
 const usernames = [

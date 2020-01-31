@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import cdk = require("@aws-cdk/core");
-import { GQLStack } from "../lib/gql-stack";
+import { FedStack } from "../lib/fed-stack";
 
 const app = new cdk.App();
-new GQLStack(app, "gql-demo");
+new FedStack(app, "fed-demo");

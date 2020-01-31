@@ -44,7 +44,11 @@ const schema = buildFederatedSchema([
 
 traceResolvers(schema);
 
-const server = new ApolloServer({ schema });
+const server = new ApolloServer({
+  schema,
+  introspection: true,
+  playground: true
+});
 
 const products = [
   {
@@ -67,4 +71,4 @@ const products = [
   }
 ];
 
-exports.handler = server.createHandler();
+exports.handler = server.createHandler({});

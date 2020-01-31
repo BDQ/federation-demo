@@ -1,5 +1,9 @@
+// const xray = require("aws-xray-sdk-core");
+// xray.captureHTTPsGlobal(require("http"));
+// xray.capturePromise();
+
 const { ApolloServer } = require("apollo-server-lambda");
-const { ApolloGateway } = require("@apollo/gateway");
+const { ApolloGateway, RemoteGraphQLDataSource } = require("@apollo/gateway");
 const { LambdaGraphQLDataSource } = require("./LambdaGraphQLDataSource");
 
 const gateway = new ApolloGateway({
@@ -25,36 +29,35 @@ const gateway = new ApolloGateway({
       functionName: process.env.INVENTORY_LAMBDA_NAME
     }
   ],
-  buildService: ({ name, url, functionName }) => {
-    try {
-      let dataSource = new LambdaGraphQLDataSource({
-        functionName,
-        willSendRequest({ request, context }) {
-          // request.http.headers.set('x-correlation-id', '...');
-          // if (context.req && context.req.headers) {
-          //   request.http.headers.set(
-          //     "authorization",
-          //     context.req.headers["authorization"]
-          //   );
-          // }
-          console.log("will send request -> ", name, JSON.stringify(request));
-        }
-        // didReceiveResponse(response, request, context) {
-        //   console.log("inside response");
-        //   const body = super.didReceiveResponse(response, request, context);
-        //   const cookie = request.http.headers.get("Cookie");
-        //   if (cookie) {
-        //     context.responseCookies.push(cookie);
-        //   }
-        //   console.log("didRecRes", body);
-        //   return body;
+  buildService: ({ url }) => {
+    console.log("buildingService", url);
+    console.log(RemoteGraphQLDataSource);
+    let dataSource = new RemoteGraphQLDataSource({
+      url,
+      willSendRequest({ request, context }) {
+        // request.http.headers.set('x-correlation-id', '...');
+        // if (context.req && context.req.headers) {
+        //   request.http.headers.set(
+        //     "authorization",
+        //     context.req.headers["authorization"]
+        //   );
         // }
-      });
-      return dataSource;
-    } catch (err) {
-      console.warn("insdie buildService", err);
-    }
+        console.log("will send request -> ", JSON.stringify(request));
+      }
+    });
+    console.log(dataSource);
+    return dataSource;
   }
+  // buildService: ({ name, url, functionName }) => {
+  //   try {
+  //     let dataSource = new LambdaGraphQLDataSource({
+  //       functionName
+  //     });
+  //     return dataSource;
+  //   } catch (err) {
+  //     console.warn("insdie buildService", err);
+  //   }
+  // }
 });
 
 // (async () => {
@@ -69,6 +72,8 @@ const gateway = new ApolloGateway({
 
 const server = new ApolloServer({
   gateway,
-  subscriptions: false
+  subscriptions: false,
+  introspection: true,
+  playground: true
 });
 exports.handler = server.createHandler();
