@@ -4,8 +4,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@apollo/federation": "latest",
-    "@apollo/gateway": "latest",
+    "@apollo/federation": "^0.11.3",
+    "@apollo/gateway": "^0.11.7",
     "@lifeomic/graphql-resolvers-xray-tracing": "^4.0.0",
     "apollo-server": "latest",
     "apollo-server-lambda": "latest",

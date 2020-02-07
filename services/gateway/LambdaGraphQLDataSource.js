@@ -20,6 +20,11 @@ class LambdaGraphQLDataSource {
     if (config) return Object.assign(this, config);
   }
 
+  willSendRequest({ request, context }) {
+    if (process.env._X_AMZN_TRACE_ID)
+      request.http.headers.set("X-Amzn-Trace-Id", process.env._X_AMZN_TRACE_ID);
+  }
+
   async process({ request, context }) {
     const headers = (request.http && request.http.headers) || new Headers();
     headers.set("Content-Type", "application/json");

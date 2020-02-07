@@ -1,13 +1,10 @@
-const xray = require("aws-xray-sdk-core");
+// const xray = require("aws-xray-sdk-core");
 // xray.captureAWS(require("aws-sdk"));
-// const Lambda = require("aws-sdk/clients/lambda");
-xray.captureHTTPsGlobal(require("http"));
-xray.capturePromise();
 
 const { ApolloServer, gql } = require("apollo-server-lambda");
 const { buildFederatedSchema } = require("@apollo/federation");
 
-const traceResolvers = require("@lifeomic/graphql-resolvers-xray-tracing");
+// const traceResolvers = require("@lifeomic/graphql-resolvers-xray-tracing");
 
 const typeDefs = gql`
   extend type Query {
@@ -42,12 +39,15 @@ const schema = buildFederatedSchema([
   }
 ]);
 
-traceResolvers(schema);
+// traceResolvers(schema);
 
 const server = new ApolloServer({
   schema,
   introspection: true,
-  playground: true
+  playground: true,
+  context: ({ event, context }) => {
+    console.log(JSON.stringify(event, null, 2));
+  }
 });
 
 const products = [

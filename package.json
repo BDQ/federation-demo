@@ -1,6 +1,7 @@
 {
   "name": "federation-demo",
   "scripts": {
+    "build": "webpack --mode=production",
     "postinstall": "lerna bootstrap",
     "deploy": "lerna exec --scope=ops -- npm run deploy"
   },

@@ -19,17 +19,19 @@ let headers = {
   "Content-Type": "application/json"
 };
 
-const fedHTTP = "https://5ps4c076ve.execute-api.us-east-1.amazonaws.com/";
-const fedREST = "https://pssjgo6lci.execute-api.us-east-1.amazonaws.com/prod/";
+const url = "SETMETOSOMETHING";
 
 export default function() {
-  let res = http.post(fedREST, JSON.stringify({ query: query }), {
+  let res = http.post(url, JSON.stringify({ query: query }), {
     headers: headers
   });
 
   if (res.status === 200) {
     let body = JSON.parse(res.body);
-    console.log(JSON.stringify(body, null, 2));
+
+    check(body, {
+      "ensure 3 products returned": b => b.data.topProducts.length === 3
+    });
   }
 
   check(res, {
